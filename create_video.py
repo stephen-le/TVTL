@@ -1,23 +1,48 @@
 import io
 import os
 import re
+import json
 import math
 import subprocess
 
-####utility#######
+####utility###################
 def atoi(text):
     return int(text) if text.isdigit() else text
 
 def natural_keys(text):
     return [ atoi(c) for c in re.split(r'(\d+)', text) ]
+###########################
+# tvtl_info = {
+    # "audio_dir" : "./sounds",
+    # "image_dir" : "./images1",
+    # "date" : "11/09/2020",
+    # "topic" : "config file"
+# }
+
+#create config file --> no longer needed
+#with open("tvtl.json", "w") as jsonfile:
+#    json.dump(tvtl_info, jsonfile)
+
+#read our config file
+with open("tvtl.json", "r") as jsonfile:
+    data = json.load(jsonfile)
+    #print("Read successful")
 
 
-def create_slide(video,output):
+#extract data field from the config file
+my_audio_dir = data['audio_dir']
+my_image_dir = data['image_dir']
+
+print("my_audio_dir = " + my_audio_dir)
+print("my_image_dir = " + my_image_dir)
+
+############################
+
+def create_slide(imageDir,output):
     # ffmpeg -framerate 1/10 -i ./images1/image%d.jpg -vf "scale=800:600,setsar=1" -r 5 -c:v libx264 -crf 25 -preset slow scan-video.mp4
     #command = "ffmpeg -f concat -i ./images1/input.txt -vf mpdecimate -r 5 -c:v libx264 -crf 25 -preset slow scan-video.mp4" 
     #command = "ffmpeg -f concat -i ./images1/input.txt -c:v libx264 -r 30 -pix_fmt yuv420p output.mp4"
-    command = "ffmpeg -f concat -i ./images1/input.txt  -pix_fmt yuv420p -movflags +faststart output.mp4"
-    #print(command)
+    command = "ffmpeg -f concat -i {imageDir}/input.txt  -pix_fmt yuv420p -movflags +faststart ./output/slide.mp4".format(imageDir=imageDir, output=output)
     #command = "ffmpeg -i {video} -ac 1  -f flac -vn {output}".format(video=video, output=output)
     subprocess.call(command,shell=True)
 
@@ -25,7 +50,7 @@ def create_slide(video,output):
 def create_video(video,output):
     #command = "ffmpeg  -stream_loop -1 -i scan-video.mp4 -i ./sounds/silent_night.mp3 -shortest -map 0:v:0 -map 1:a:0 -y out.mp4"
     #we let the video run longer than the audio so will not use -shortest
-    command = "ffmpeg  -i output.mp4 -i ./sounds/silent_night.mp3 -map 0:v:0 -map 1:a:0 -y finalVideo.mp4"
+    command = "ffmpeg  -i ./output/slide.mp4 -i ./sounds/silent_night.mp3 -map 0:v:0 -map 1:a:0 -y ./output/finalVideo.mp4"
     subprocess.call(command,shell=True)
 
 #get song information and duration
@@ -72,10 +97,10 @@ def get_background_list(path):
     image_list.sort(key = natural_keys)
     return(image_list)
  
-my_sound_list = get_sound_list("./sounds")
+my_sound_list = get_sound_list(my_audio_dir)
 #print(my_sound_list)
 
-my_image_list = get_background_list("./images1")
+my_image_list = get_background_list(my_image_dir)
 #print(my_image_list)
  
 time = get_song_duration()
@@ -84,7 +109,7 @@ time = get_song_duration()
 command = "python3 create_input.py " + str(time)
 os.system(command)
 
-create_slide('100','dm-new.flac')
+create_slide(my_image_dir,'dm-new.flac')
 #create_slide(time,'dm-new.flac')
 create_video('one', 'two')
 
