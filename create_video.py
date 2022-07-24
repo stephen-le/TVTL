@@ -73,6 +73,17 @@ def create_video2(soundInput,vidOutput):
     #we let the video run longer than the audio so will not use -shortest
     command = "ffmpeg  -i ./output/slide.mp4 -i \"{soundInput}\" -map 0:v:0 -map 1:a:0 -y \"{vidOutput}\"".format(soundInput=soundInput, vidOutput=vidOutput)
     subprocess.call(command,shell=True)
+    
+def create_video3(commandx, soundInput,vidOutput):
+    command = "rm ./output/slide.mp4"
+    subprocess.call(command,shell=True)
+    
+    subprocess.call(commandx,shell=True)
+    
+    command = "ffmpeg  -i ./output/slide.mp4 -i \"{soundInput}\" -map 0:v:0 -map 1:a:0 -y \"{vidOutput}\"".format(soundInput=soundInput, vidOutput=vidOutput)
+    subprocess.call(command,shell=True)
+    
+    
  
 #get song information and duration
 def get_song_duration2(song_title):    
@@ -90,10 +101,13 @@ def get_song_duration2(song_title):
     index = txt.find("=")
 
     #get duration in second
-    duration = txt[index+1:index+4:1]
-    #print(duration)
+    duration = txt[index+1:index+6:1]
+    
+    #round up
+    d = math.ceil(float(duration))
+    print(d)
 
-    return (duration)
+    return (d)
  
  
 my_sound_list = my_util.get_sound_list(my_audio_dir)
@@ -102,23 +116,19 @@ my_sound_list = my_util.get_sound_list(my_audio_dir)
 my_image_list = my_util.get_background_list(my_image_dir)
 #print(my_image_list)
  
-song_name = my_sound_list[0]
+song_name = my_sound_list[1]
  
 time = get_song_duration2(song_name)
 
-input_file = create_input.create_slide_input(time, song_name, my_audio_dir, my_image_dir)
-print("input_file = " + input_file + "\n")
-
-create_slide2(input_file,'dm-new.flac')
-
+command = create_input.create_slide_command(time, my_image_dir)
+################
 input_song = my_audio_dir + '/' + song_name
-print("input_song = " + input_song + "\n")
+#print("input_song = " + input_song + "\n")
 
 string_container = song_name.split('.')
 output_video = "./video/" +  string_container[0] + ".mp4"
-print("output_video = " + output_video + "\n")
+# print("output_video = " + output_video + "\n")
 
-create_video2(input_song, output_video)
-
-
+create_video3(command, input_song, output_video)
+#####################
 logging.info('Finished')
