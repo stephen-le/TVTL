@@ -43,7 +43,7 @@ def get_background_list(path):
     image_list = [ ]
 
     for file in all_files:
-        if file.endswith(".jpg"):
+        if file.endswith(".png"):
             image_list.append(file)
  
     image_list.sort(key = natural_keys)

@@ -18,9 +18,8 @@ def get_number_of_picture_for_a_song(song_duration):
     number_of_pictures = math.ceil(int(song_duration) / duration)
     return number_of_pictures    
 
-def create_slide_command(song_duration, image_dir):
+def create_slide_command(song_duration, image_dir, song_cover, song_credit):
     duration = 20
-    #number_of_pictures = get_number_of_picture_for_a_song(song_duration)
     number_of_pictures = int(song_duration / duration)
     
     #check the remainder seconds
@@ -45,14 +44,19 @@ def create_slide_command(song_duration, image_dir):
     
     index = 0
     command = "ffmpeg "
-    for i in range(0,number_of_pictures):
-        if( i < number_of_pictures-1):
-            command = command + "-loop 1 -t 20 -i " + image_dir + '/'+ str(random_list[index]) + '.jpg ' 
-        else:
-            command = command + '-loop 1 -t ' + str(remainder) + " -i " + image_dir + '/'+ str(random_list[index]) + '.jpg ' 
+    
+    #insert song cover
+    command = command + "-loop 1 -t 20 -i " + song_cover + ' '
+    
+    for i in range(0,number_of_pictures-2):
+        command = command + "-loop 1 -t 20 -i " + image_dir + '/'+ str(random_list[index]) + '.png ' 
         index = index + 1
         
-     #########
+    #insert song credit
+    command = command + '-loop 1 -t ' + str(remainder) + " -i " + song_credit + ' '
+        
+        
+    ##########
     command = command + '-filter_complex "'
     ##########
     command = command + '[0:v]fade=t=out:st=19:d=1[v0];'
@@ -70,7 +74,7 @@ def create_slide_command(song_duration, image_dir):
     command = command + 'concat=n=' + str(number_of_pictures) + ':v=1:a=0,format=yuv420p[v]' + '"'
     ###################
     command = command + ' -map "[v]" ./output/slide.mp4'
-    #print(command)
+    print(command)
     return (command)
 
 def create_slide_input(song_duration, song_name, song_path, image_dir):
@@ -94,7 +98,7 @@ def create_slide_input(song_duration, song_name, song_path, image_dir):
     
     index = 0
     for i in range(0,number_of_pictures):
-        image_name = str(random_list[index]) + '.jpg' 
+        image_name = str(random_list[index]) + '.png' 
         image_list.append(image_name)
         index = index + 1
 
