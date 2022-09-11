@@ -162,11 +162,17 @@ while flag:
     print(song_credit)
     print("**********************************\n")
     time = get_song_duration2(input_song)
+    
+    if(time > 350): #when duration is more than 6min, it is often wrong
+        print("Please verify the song duration and enter it here: ")
+        time = input()
+    
     command = create_input.create_slide_command(time, my_image_dir, song_cover, song_credit)
+    create_input.create_input_file(time, my_image_dir, song_cover, song_credit, my_video)    
     
     string_container = my_video.split('.')
     output_video = "./video/" +  string_container[0] + ".mp4"
-    print("output_video = " + output_video + "\n")
+    #print("output_video = " + output_video + "\n")
     
     create_video3(command, input_song, output_video)
     
